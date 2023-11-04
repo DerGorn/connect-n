@@ -1,4 +1,4 @@
-use crate::{gui_game::color_transform::hsva_to_rgba, take_turn, Cell, Game, Res};
+use crate::{gui_game::color_transform::hsva_to_rgba, take_turn, Game, Res};
 
 use std::time::Instant;
 
@@ -6,14 +6,12 @@ mod color_transform;
 
 use pixels::{Pixels, SurfaceTexture};
 use winit::{
-    dpi::{PhysicalPosition, PhysicalSize},
+    dpi::PhysicalSize,
     event::{ElementState, Event, MouseButton, WindowEvent},
     event_loop::EventLoop,
     window::WindowBuilder,
 };
 
-const RADIUS: i32 = 15;
-const RADIUS_SQUARE: i32 = RADIUS.pow(2);
 const BACKGROUND_COLOR: [u8; 4] = [200, 200, 200, 255];
 const FOREGROUND_COLOR: [u8; 4] = [20, 20, 200, 255];
 const FOREGROUND_HIGHLIGHT_COLOR: [u8; 4] = [80, 120, 255, 255];
@@ -69,7 +67,7 @@ fn create_background_buffer(
     for x in 0..width {
         let x_offset = x * grid_size + border_width;
         for y in 0..height - 1 {
-            let y_offset = (y + 1) * grid_size + border_height;
+            let y_offset = (height - (y + 1)) * grid_size + border_height;
 
             let occupance = match game.board.get_cell(x as usize, y as usize) {
                 None => break,
@@ -110,7 +108,7 @@ fn update_background_buffer_column(
 
     let old_x_offset = old_x * grid_size + border_width;
     for y in 0..height - 1 {
-        let y_offset = (y + 1) * grid_size + border_height;
+        let y_offset = (height - (y + 1)) * grid_size + border_height;
 
         let occupance = match game.board.get_cell(old_x as usize, y as usize) {
             None => break,
@@ -133,7 +131,7 @@ fn update_background_buffer_column(
     }
     let x_offset = x * grid_size + border_width;
     for y in 0..height - 1 {
-        let y_offset = (y + 1) * grid_size + border_height;
+        let y_offset = (height - (y + 1)) * grid_size + border_height;
 
         let occupance = match game.board.get_cell(x as usize, y as usize) {
             None => break,
@@ -271,7 +269,14 @@ pub fn gui_game(
                             );
                             buffer.frame_mut().clone_from_slice(&background_buffer);
                             if game_over {
-                                println!("Player {} won!!", game.active_player);
+                                println!(
+                                    "Player {} won!!",
+                                    if game.active_player == 0 {
+                                        game.player_count
+                                    } else {
+                                        game.active_player
+                                    }
+                                );
                             }
                         }
                     };
@@ -304,70 +309,15 @@ pub fn gui_game(
                 }
             }
             Event::MainEventsCleared => {
-                // Application update code.
-
-                // Queue a RedrawRequested event.
-                //
-                // You only need to call this if you've determined that you need to redraw, in
-                // applications which do not always need to. Applications that redraw continuously
-                // can just render here instead.
                 window.request_redraw();
             }
             Event::RedrawRequested(_) => {
-                // Redraw the application.
-                //
-                // It's preferable for applications that do not render continuously to render in
-                // this event rather than in MainEventsCleared, since rendering in here allows
-                // the program to gracefully handle redraws requested by the OS.
-
                 // let start = Instant::now();
 
                 let frame = buffer.frame_mut();
 
                 let radius = calc_piece_radius(grid_size) as i32;
                 let radius_square = radius.pow(2);
-
-                //CleanUp
-                // //MC
-                // for x_offset in -RADIUS..=RADIUS {
-                //     let x = ((old_x as i32) + x_offset) as u32;
-                //     if x >= size.width {
-                //         continue;
-                //     }
-                //     let height = ((RADIUS_SQUARE - x_offset.pow(2)) as f64).sqrt() as i32;
-                //     for y_offset in -height..=height {
-                //         let y = ((old_y as i32) + y_offset) as u32;
-                //         if y >= size.height {
-                //             continue;
-                //         }
-
-                //         let index = ((size.width * y + x) * 4) as usize;
-                //         frame[index] = background_buffer[index];
-                //         frame[index + 1] = background_buffer[index + 1];
-                //         frame[index + 2] = background_buffer[index + 2];
-                //         frame[index + 3] = background_buffer[index + 3];
-                //     }
-                // }
-                // //MouseCircle
-                // for x_offset in -RADIUS..=RADIUS {
-                //     let x: u32 = ((mouse_x as i32) + x_offset) as u32;
-                //     if x >= size.width {
-                //         continue;
-                //     }
-                //     let height = ((RADIUS_SQUARE - x_offset.pow(2)) as f64).sqrt() as i32;
-                //     for y_offset in -height..=height {
-                //         let y = ((mouse_y as i32) + y_offset) as u32;
-                //         if y >= size.height {
-                //             continue;
-                //         }
-
-                //         let index = ((size.width * y + x) * 4) as usize;
-                //         frame[index] = FOREGROUND_HIGHLIGHT_COLOR[0];
-                //         frame[index + 1] = FOREGROUND_HIGHLIGHT_COLOR[1];
-                //         frame[index + 2] = FOREGROUND_HIGHLIGHT_COLOR[2];
-                //         frame[index + 3] = FOREGROUND_HIGHLIGHT_COLOR[3];
-                //     }
-                // }
 
                 //CleanUp
                 //TP

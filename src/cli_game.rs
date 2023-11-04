@@ -21,7 +21,15 @@ pub fn cli_game(
             }
         }
     }
-    println!("Player {} won!!{}", game.active_player, game.board);
+    println!(
+        "Player {} won!!{}",
+        if game.active_player == 0 {
+            game.player_count
+        } else {
+            game.active_player
+        },
+        game.board
+    );
     Ok(())
 }
 
